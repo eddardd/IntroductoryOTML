@@ -1,0 +1,99 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+</head>
+
+<!-- Create a div where the graph will take place -->
+<body>
+<div id="datavis"></div>
+
+
+<script type="text/javascript">
+    console.log('Hello World!')
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 460,
+        height = 400;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#datavis")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //Read the data
+    d3.csv('https://raw.githubusercontent.com/eddardd/CrossDomainFaultDetection/main/data/ttanks_ex_simulation.csv',
+
+      // When reading the csv, I must format variables:
+      function(d){
+        return { Time: +d.Time, h1: +d.h1, h2: +d.h2 }
+      },
+
+      // Now I can use this dataset:
+      function(data) {
+
+        // Add X axis --> it is a date format
+        var x = d3.scaleLinear()
+                  .domain(d3.extent(data, function(d) { return d.Time; }))
+                  .range([ 0, width ]);
+
+        var xAxis = d3.axisBottom(x);
+        
+        svg.append("g")
+           .attr("transform", "translate(0," + height + ")")
+           .call(xAxis);
+
+        // Add Y axis
+        var y = d3.scaleLinear()
+                  .domain([0, d3.max(data, function(d) { return +d.h1; })])
+                  .range([ height, 0 ]);
+        
+        var yAxis = d3.axisLeft(y);
+
+        svg.append("g")
+           .call(yAxis);
+
+        // Label names
+        svg.append("text")             
+           .attr("transform",
+                 "translate(" + (width/2) + " ," + 
+                                (height + margin.top + 20) + ")")
+           .style("text-anchor", "middle")
+           .text("Time (seconds)");
+
+        svg.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", 0 - margin.left)
+          .attr("x",0 - (height / 2))
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Water Level (meters)"); 
+
+        // Add the line
+        var path = svg.append("path")
+                      .datum(data)
+                      .attr("fill", "none")
+                      .attr("stroke", "steelblue")
+                      .attr("stroke-width", 2)
+                      .attr("d", d3.line().x(function(d) { return x(d.Time) })
+                                          .y(function(d) { return y(d.h1) })
+                      )
+
+        var path = svg.append("path")
+                      .datum(data)
+                      .attr("fill", "none")
+                      .attr("stroke", "orange")
+                      .attr("stroke-width", 2)
+                      .attr("d", d3.line().x(function(d) { return x(d.Time) })
+                                          .y(function(d) { return y(d.h2) })
+                      )
+
+    })
+</script>
+</body>

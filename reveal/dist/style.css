@@ -1,0 +1,28 @@
+.reveal h1 {
+    font-size: 60px;
+}
+
+.reveal a {
+    text-decoration: none;
+    color: inherit;
+}
+
+body {
+  background: #fff;
+  background-color: #fff; }
+
+.reveal {
+  font-family: "Open Sans", sans-serif;
+  font-size: 30px;
+  font-weight: 200;
+  letter-spacing: -0.02em;
+  color: #000; }
+
+.reveal .slides > section {
+    /* Force every slide to be full height so that footers work */
+    height: 100%;
+}
+
+.reveal p {
+    text-align: justify;
+}

@@ -1,0 +1,218 @@
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<head>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="//d3js.org/d3.v3.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_SVG"></script>
+</head>
+
+<!-- Create a div where the graph will take place -->
+<body>
+<div id="rect"></div>
+
+
+<script type="text/javascript">
+    console.log('Hello World!')
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 460,
+        height = 400;
+
+
+    // create svg element:
+    var svg = d3.select("#rect").append("svg").attr("width", 800).attr("height", 500)
+
+    var offsetX = 200
+    var offsetY = 50
+    var rectWidth = 300
+    var rectHeight = 150
+    var deltaX = 250
+    var deltaY = 50
+    var markerBoxWidth = 20
+    var markerBoxHeight = 20;
+    var refX = markerBoxWidth / 2;
+    var refY = markerBoxHeight / 2;
+    var markerWidth = markerBoxWidth / 2;
+    var markerHeight = markerBoxHeight / 2;
+    var arrowPoints = [[0, 0], [0, 20], [20, 10]];
+    
+    // Draws first Tank
+    svg.append('rect')
+       .attr('x', 10 + offsetX)
+       .attr('y', 10 + offsetY)
+       .attr('width', rectWidth)
+       .attr('height', rectHeight)
+       .attr('stroke', 'black')
+       .attr('fill', '#fff')
+       .attr('stroke-dasharray', `0 ${rectWidth} ${rectWidth + rectHeight}`);
+
+    // Draws strokes
+    svg.append('line')
+       .attr('x1', 10 + offsetX)
+       .attr('y1', 10 + rectHeight + offsetY - 30)
+       .attr('x2', 10 + offsetX)
+       .attr('y2', 10 + rectHeight + offsetY)
+       .attr('stroke', '#fff')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX)
+       .attr('y1', 10 + rectHeight + offsetY - 30)
+       .attr('x2', 10 + offsetX - 50)
+       .attr('y2', 10 + rectHeight + offsetY - 30)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX)
+       .attr('y1', 10 + rectHeight + offsetY)
+       .attr('x2', 10 + offsetX - 50)
+       .attr('y2', 10 + rectHeight + offsetY)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + rectWidth)
+       .attr('y1', 10 + rectHeight + offsetY - 30)
+       .attr('x2', 10 + offsetX + rectWidth)
+       .attr('y2', 10 + rectHeight + offsetY)
+       .attr('stroke', '#fff')
+
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + rectWidth)
+       .attr('y1', 10 + rectHeight + offsetY - 30)
+       .attr('x2', 10 + offsetX + rectWidth + 50)
+       .attr('y2', 10 + rectHeight + offsetY - 30)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + rectWidth)
+       .attr('y1', 10 + rectHeight + offsetY)
+       .attr('x2', 10 + offsetX +rectWidth + 50)
+       .attr('y2', 10 + rectHeight + offsetY)
+       .attr('stroke', 'black')
+
+    // Draws second tank
+    svg.append('rect')
+       .attr('x', 10 + offsetX + deltaX)
+       .attr('y', 10 + offsetX + deltaY)
+       .attr('width', rectWidth)
+       .attr('height', rectHeight)
+       .attr('stroke', 'black')
+       .attr('fill', '#fff')
+       .attr('stroke-dasharray', `0 ${rectWidth} ${rectWidth + rectHeight}`);
+
+    // Draws strokes
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('x2', 10 + offsetX + deltaX)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight)
+       .attr('stroke', '#fff')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('x2', 10 + offsetX + deltaX - 50)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight)
+       .attr('x2', 10 + offsetX + deltaX - 50)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX + rectWidth)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('x2', 10 + offsetX + deltaX + rectWidth)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight)
+       .attr('stroke', '#fff')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX + rectWidth)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('x2', 10 + offsetX + deltaX + 50 + rectWidth)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight - 30)
+       .attr('stroke', 'black')
+
+    svg.append('line')
+       .attr('x1', 10 + offsetX + deltaX + rectWidth)
+       .attr('y1', 10 + offsetX + deltaY + rectHeight)
+       .attr('x2', 10 + offsetX + deltaX + 50 + rectWidth)
+       .attr('y2', 10 + offsetX + deltaY + rectHeight)
+       .attr('stroke', 'black')
+
+    // Draw arrows
+    svg.append('defs')
+       .append('marker')
+       .attr('id', 'arrow')
+       .attr('viewBox', [0, 0, markerBoxWidth, markerBoxHeight])
+       .attr('refX', refX)
+       .attr('refY', refY)
+       .attr('markerWidth', markerBoxWidth)
+       .attr('markerHeight', markerBoxHeight)
+       .attr('orient', 'auto-start-reverse')
+       .append('path')
+       .attr('d', d3.line()(arrowPoints))
+       .attr('stroke', 'black');
+
+    svg.append('path')
+       .attr('d', d3.line()([[10 + offsetX + rectWidth / 2, offsetY],
+                             [10 + offsetX + rectWidth / 2, offsetY / 2],
+                             [offsetX / 2, offsetY / 2]]))
+       .attr('stroke', 'black')
+       .attr('marker-start', 'url(#arrow)')
+       .attr('fill', 'none');
+
+    svg.append('path')
+       .attr('d', d3.line()([[10 + offsetX + deltaX - 100, 10 + offsetX + deltaY + rectHeight + 15],
+                             [10 + offsetX + deltaX - 100, 10 + offsetX + deltaY + rectHeight - 15],
+                             [10 + offsetX + deltaX, 10 + offsetX + deltaY + rectHeight - 15]]))
+       .attr('stroke', 'black')
+       .attr('marker-start', 'url(#arrow)')
+       .attr('fill', 'none');
+
+    svg.append('g')
+       .attr('class', 'tick')
+       .attr('transform', `translate(${offsetX / 2 - 30}, ${offsetY / 2 - 10})`)
+       .append('text')
+       .text('$Q_{in}$');
+
+    svg.append('g')
+       .attr('class', 'tick')
+       .attr('transform', `translate(${10 + offsetX + deltaX - 110}, ${10 + offsetX + deltaY + rectHeight + 30})`)
+       .append('text')
+       .text('$Q_{23}$');
+
+setTimeout(() => {
+  
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+  
+  MathJax.Hub.Register.StartupHook("End", function() {
+    setTimeout(() => {
+          svg.selectAll('.tick').each(function(){
+          var self = d3.select(this),
+              g = self.select('text>span>svg');
+          g.remove();
+          self.append(function(){
+            return g.node();
+          });
+        });
+      }, 1);
+    });
+  
+  MathJax.Hub.Queue(["Typeset", MathJax.Hub, svg.node()]);
+  
+}, 1);
+
+</script>
+</body>

@@ -1,0 +1,749 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="reveal/dist/reset.css">
+		<link rel="stylesheet" href="reveal/dist/reveal.css">
+		<link rel="stylesheet" href="reveal/dist/theme/white.css" id="theme">
+        <link rel="stylesheet" href="reveal/dist/style.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="reveal/plugin/highlight/monokai.css" id="highlight-theme">
+
+        <!-- Load d3.js 
+        <script src="https://d3js.org/d3.v4.js"></script>
+        -->
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+                    <h1>Optimal Transport for Machine Learning</h1>
+                    <p style="text-align: center;">Eduardo Fernandes Montesuma</p>
+                    <p style="text-align: center;"><a href="mailto:edumontesuma@gmail.com">edumontesuma@gmail.com</a></p>
+                    <img src="Figures/ufc.jpg" alt="UFC-Logo" style="max-width: 35%; max-height: 35%;">
+                </section>
+				
+                <section>
+                    <h1>Summary</h1>
+                    <ul style='align-content: left;'>
+                        <li>Introduction: Optimal Transport</li>
+                            <ul>Discrete Optimal Transport</ul>
+                            <ul>Regularized Optimal Transport</ul>
+                        <li>Applications</li>
+                            <ul>Unsupervised Learning</ul>
+                            <ul>Domain Adaptation</ul>
+                        <li>Conclusion</li>
+                            <ul>Resources</ul>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h1>Introduction</h1>
+                    <p>In this presentation we will cover the ideas behind <b>Optimal Transport</b> in the context of <b>Machine Learning</b>. Some key ideas developed in this presentation are:</p>
+
+                    <p><b>Probability:</b> Probability distributions, empirical distributions,</p>
+                    <p><b>Optimization:</b> Linear Programming and Matrix-Scaling algorithms,
+                    <p><b>Unsupervised Learning:</b> Clustering, Generative Modeling,
+                    <p><b>Domain Adaptation:</b> Learning setting when data comes from different probability distributions.</p>
+
+                    <p>The topics in this lecture range from <b>introductory</b> to <b>intermediate</b> in terms of theory.</p>
+                </section>
+
+                <section>
+                    <h1>Introduction</h1>
+
+                    <p>Why should we care for probability/statistics?</p>
+
+                    <p style="text-align: center;"><b>Supervised Learning</b></p>
+
+                    <img src="./Figures/MNIST_KDE.svg" style="height: 65%; width: auto;">
+                </section>
+
+                <section>
+                    <h1>Introduction</h1>
+
+                    <p>Why should we care for probability/statistics?</p>
+
+                    <p style="text-align: center;"><b>Unsupervised Learning</b></p>
+
+                    <img src="./Figures/dcgan.gif" style="height: 65%; width: auto;">
+                </section>
+
+                <section>
+                    <h1>Introduction: Probability Theory</h1>
+
+                    <p>How probability intersects with machine learning? <b>Assume samples come from an unknown underlying distribution.</b></p>
+
+                    <img src="./Figures/DataVsDistr.svg" style="height: 65%; width: auto;">
+                </section>
+
+                <section>
+                    <h1>Introduction: Probability Theory</h1>
+
+                    <p>Formally, (continuous) probability distributions assign probabilities to sets</p>
+
+                    <div style="height: 100%; width: 50%; position: fixed; left: 0;
+                                transform: translate(0%, 15%);">
+                        <p>
+                        \[\begin{align}
+                            \underset{\scriptsize{\text{Prob. Measure}}}{\mu(E)} &= \underset{\scriptsize{\text{Prob. Distribution}}}{P(X \in E)} \\
+                            &= \int_{E}\underset{\scriptsize{\text{Prob. Density}}}{f(x)}dx
+                            \end{align}
+                        \]</p>    
+                    </div>
+                    
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/Pdist.svg" style="height: 65%; width: auto;">    
+                    </div>
+                    
+                </section>
+
+                <section>
+                    <h1>Introduction: Probability Theory</h1>
+
+                    <p>Note: we do not know \(P\), we only have samples \(\{x_{i}\}_{i=1}^{n}\). <b>Solution:</b> consider that all points have equal probability,</p>
+
+                    <div style="height: 100%; width: 50%; position: fixed; left: 0;
+                                transform: translate(0%, 0%);">
+                        \[
+                            \mu(x) = \dfrac{1}{n}\sum_{i=1}^{n}\delta(x - x_{i})
+                        \]
+
+                        <p>Note that for measuring the probability of a set \(E\), we can simply do,</p>
+
+                        \[
+                            \mu(E) = \dfrac{1}{n}\sum_{x_{i} \in E}1
+                        \]
+                    </div>
+                    
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/EmpiricalMeasure.svg" style="height: 65%; width: auto;">    
+                    </div>
+                </section>
+
+                <section style="height: 0%;">
+                    <h1>Introduction: Optimal Transport</h1>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport</h1>
+
+                    <p>Optimal Transport is a mathematical theory first developed by the 18-th century French mathematician Gaspard Monge in his <em>mémoirs sur les déblais
+                    et les remblais.</em></p>
+
+                    <div style="height: 100%; width: 50%; position: fixed;">
+                        <p style="font-size:20px;">An amount of soil needs to be
+                        extracted from a source (remblais) and moved to a target (déblais)</p>
+                        <img src="./Figures/MongeMap.svg" style="height: 50%; width: auto;" />
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/Monge.jpg" style="float: right; height: 50%; width: auto;" />
+                    </div>
+                    
+                </section>
+
+                <section>
+                    <h1>Discretization</h1>
+
+                    <p>Before diving into the theory on how the Monge problem can be solved, let us dive into <b>discretization</b></p>
+
+                    <div style="height: 100%; width: 50%; position: fixed;">
+                        <p>Instead of having mass distributed constinuously along the ground, we suppose that it is distributed
+                        discretly,
+                        \[\mu(x) = \sum_{i=1}^{n}a_{i}\delta(x-x_{i})\]
+                        </p>
+                        <p>\(x_{i}\leftarrow\) mass position,</p>
+                        <p>\(a_{i}\leftarrow\) mass weight</p>
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/Discretization.svg" style="float: right; height: 50%; width: auto;" />
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: intuition</h1>
+
+                    <p>Suppose that we have \(\mu\) with locations \(x_{i}\) and weights \(a_{i}\), and \(\nu\) with locations
+                    \(y_{j}\) and weights \(b_{j}\). How to transport \(\mu\) into \(\nu\) with least effort?</p>
+                    <p>This question involves the following concepts:</p>
+                    <p>1. A mapping \(T:\mathcal{X}\rightarrow\mathcal{Y}\) that transports masses \(a_{i}\) into \(b_{j}\),</p>
+                    <p>2. A cost \(c:\mathcal{X}\times\mathcal{Y}\) that gives the effort of moving \(x_{i} \in \mathcal{X}\) into \(T(x_{i}) \in \mathcal{Y}\).</p>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: intuition</h1>
+
+                    <p>The mapping $T$ is called transportation map, or Monge Map. We want to ensure <b>mass conservation</b>, this means that all mass going to \(y_{j}\) needs to come from some \(x_{i}\) (possibly many),
+                    </p>
+
+                    <div style="height: 100%; width: 50%; position: fixed; left:0;">
+                        \[b_{j} = \sum_{i:T(x_{i})=y_{j}}a_{i}\]
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/MongeMapping.svg">
+                    </div>
+                    
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: intuition</h1>
+
+                    Suppose we got ourselves a mapping \(T\). How do we tell the effort it implies?
+                    <p><b>Solution:</b> we define a <b>cost function</b> \(c:\mathcal{X}\times\mathcal{Y}\rightarrow\mathbb{R}\).</p>
+                    <p>Example of costs:</p>
+                    <p>1. <b>Cityblock distance:</b> \(c(x,y) = |x - y|\)</p>
+                    <p>2. <b>Euclidean distance</b> \(c(x,y) = (x - y)^{2}\)</p>
+                    <p>3. <b>p-distances:</b> \(c(x,y) = |x - y|^{p}\)</p>
+
+                    <p>Hence, the effort of \(T\) is given by \(\sum_{i=1}^{n}c(x_{i}, T(x_{i}))\)</p>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: intuition</h1>
+
+                    <p>The Monge Mapping is defined through the following optimization problem,
+                        \[T^{*} = \underset{b_{j} = \sum_{i:T(x_{i})=y_{j}}a_{i}}{\text{argmin}}\sum_{i=1}^{n}c(x_{i},T(x_{i}))\]
+                    </p>
+                    <p>Hence,</p>
+                    <p>1. The Monge Mapping \(T^{*}\) preserves mass.</p>
+                    <p>2. The masses \(a_{i}\) cannot be split. Thus, for \(m > n\),  the problem has no solutions.</p>
+                </section>
+                
+                <section>
+                    <h1>Application: color transport</h1>
+
+
+                    <div style="height: 100%; width: 50%; position: fixed; left: 0;">
+                        <p>Suppose that one has images \(I_{1}\) and \(I_{2}\). Each pixel \((i, j)\) is a triple \((r, g, b)\)
+                            with color intensities for red, green and blue. <b>we may model each pixel as a point in</b> \(\mathbb{R}^{3}\)
+                        </p>
+                        <p><b>Modeling assumptions:</b> Each pixel \(I_{1}(i, j)\) corresponds to a point \(x_{p} \in \mathbb{R}^{3}\) and each pixel \(I_{2}(i, j)\)
+                        corresponds to a point \(y_{q} \in \mathbb{R}^{3}\)</p>
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/MongeFit.svg" style="height: 75%; width: auto;">    
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Application: color transport</h1>
+
+                    <p>The transportation is done by calculating \(T^{*}\) and applying it to each pixel in \(I_{1}\),</p>
+
+                    <img src="./Figures/SynthesisResult.svg" style="height: 75%; width: auto;">    
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: Kantorovich Problem</h1>
+                    <p>Sometimes \(T^{*}\) is too hard to solve. Can we get a simpler problem? <b>As it turns out, yes!</b></p>
+
+                    <div style="height: 100%; width: 50%; position: fixed;">
+                        <p>In the 20-th century, a soviet mathematician called Leonid Kantorovich devised a problem equivalent to Monge's,
+                           called Kantorovich problem or Kantorovich formulation of Optimal Transport</p>
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/Kantorovich.jpg" style="float: right; height: 50%; width: auto;" />
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: Kantorovich Problem</h1>
+                    <p>Kantorovich's insight was to devise the optimal transportation problem in terms of <b>transportation plan</b>
+                       \(\gamma \in \mathbb{R}^{n\times m}\). Intuitively, \(\gamma_{ij}\) tells how much mass is moved from
+                        \(x_{i}\) to \(y_{j}\). Since \(\gamma\) needs to preserve mass, one has,
+                    </p>
+                    <p>1. \(\sum_{i=1}^{n}\gamma_{ij} = b_{j}\) (all mass from \(b_{j}\) comes from \(\{a_{i}\}_{i=1}^{n}\))</p>
+                    <p>2. \(\sum_{j=1}^{m}\gamma_{ij} = a_{i}\) (all mass from \(a_{i}\) is distributed over \(\{b_{j}\}_{j=1}^{m}\))</p>
+
+                    <p>These two constraints can be translated into the following set,
+                        \[\Pi(\mu, \nu) = \{\gamma \in \mathbb{R}^{n\times m}: \gamma1_{n} = a, \gamma^{T}1_{m} = b\}\]
+                    </p>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: Kantorovich Problem</h1>
+                    <p>Using the previous definitions, the Kantorovich formulation of Optimal Transport is given by
+                    the following optimization problem,
+                    \[\gamma^{*} = \underset{\gamma \in \Pi(\mu, \nu)}{argmin}\sum_{i=1}^{n}\sum_{j=1}^{m}C_{ij}\gamma_{ij}\]
+                    where \(C_{ij} = c(x_{i}, y_{j})\) is the cost matrix. This optimization problem is known as a <b>Linear Program</b>.
+                    </p>
+                </section>
+
+                <section>
+                    <h1>Linear Programming</h1>
+
+                    <p>Consider the transportation of \(x_{1}, x_{2}\), with weights \(a_{1}, a_{2}\) to \(y_{1}, y_{2}\) with weights \(b_{1}, b_{2}\). The Kantorovich problem reads as,</p>
+
+                    \[
+                        \begin{eqnarray}
+                            & \underset{\gamma_{ij}}{\text{argmin}} &\text{ } C_{11}\gamma_{11} + C_{12}\gamma_{12} +  C_{21}\gamma_{21} +  C_{22}\gamma_{22}\\
+                            & \text{subject to} & \gamma_{11} + \gamma_{12} = b_{1},\\
+                                          &&        \gamma_{21} + \gamma_{22} = b_{2},\\
+                                          && \gamma_{11} + \gamma_{21} = a_{1},\\
+                                          && \gamma_{12} + \gamma_{22} = a_{2}
+                        \end{eqnarray}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Linear Programming</h1>
+
+                    <p>Consider the transportation of \(x_{1}, x_{2}\), with weights \(a_{1}, a_{2}\) to \(y_{1}, y_{2}\) with weights \(b_{1}, b_{2}\). The Kantorovich problem reads as,</p>
+
+                    <p>In this case \(c = [C_{11}, C_{12}, C_{13}, C_{14}]^{T}\), \(b = [b_{1}, b_{2}, a_{1}, a_{2}]\) and \(A\) is given by
+
+                    \[
+                        \begin{bmatrix}
+                            1 & 1 & 0 & 0\\
+                            0 & 0 & 1 & 1\\
+                            1 & 0 & 1 & 0\\
+                            0 & 1 & 0 & 1
+                        \end{bmatrix}
+                    \]
+
+                    and finally, \(x = [\gamma_{11}, \gamma_{12}, \gamma_{21}, \gamma_{22}]\)
+                    </p>
+                </section>                    
+
+                <section>
+                    <h1>Optimal Transport: Kantorovich Problem</h1>
+
+                    <p>The Optimal Transportation problem, thus, becomes easily solvable through LP!</p>
+                    <p><b>Existing approaches</b> for solving LPs:</p>
+
+                    <div style="height: 100%; width: 50%; position: fixed; left: 0;">
+                        <p>1. Dantzig's Simplex Algorithm [Dantzig, 1990]</p>
+                        <p>2. Interior-Point Method or Karmakar Algorithm [Karmakar, 1984]</p>
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0; transform: translate(0%, -10%);">
+                        <img src="./Figures/Dantzig.jpg" style="float: right; height: 50%; width: auto;" />
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Optimal Transport: Kantorovich Problem</h1>
+
+                    <p>Going back to the colour transportation example, we may solve a LP for \(\gamma \in \mathbb{R}^{250\times 250}\) for getting the transport plan of a sub-set of 250 pixels of each image. Note that \(\gamma_{ij}\) represents the amount of mass transported from pixel \(i\) in the source image, to pixel \(j\) in the target image.</p>
+
+                    <img src="./Figures/TPlan.svg" style="height: 40%; width: auto;">
+                </section>
+
+                <section>
+                    <h1>Time Complexity of Linear Programming</h1>
+
+                    <p>Even though we can solve a LP in theory, its cost is very prohibitive</p>
+
+                    <p><b>Simplex Algorithm Complexity:</b> Worst case \(O(2^{n})\), polynomial on average case.</p>
+                    <p><b>Karmakar's Algorithm Complexity:</b> Worst case \(O(n^{3.5})\)</p>
+
+                    <p>Both algorithms do not scale for large number of samples</p>
+                </section>
+
+                <section>
+                    <h1>Entropic Regularization</h1>
+
+                    <p>Solution to the scalability problem: introduce regularization</p>
+
+                    \[
+                        \gamma^{*} = \underset{\gamma \in \Pi(\mu, \nu)}{\text{argmin}}\sum_{i}\sum_{j}C_{ij}\gamma_{ij} + \underset{\text{Entropy of }\gamma}{\lambda\sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij})-1)}
+                    \]
+
+                    <p>Note that we may rewrite this last problem as,</p>
+
+                    \[
+                        \gamma^{*} = \underset{\gamma \in \Pi(\mu, \nu)}{\text{argmin}}\text{ }\text{KL}(\gamma|K)
+                    \]
+
+                    <p>for \(K_{ij} = e^{-C_{ij}/\lambda}\) and \(KL(U|V)\),</p>
+
+                    \[
+                        KL(U|V) = \sum_{i}\sum_{j}U_{ij}\log\biggr(\dfrac{U_{ij}}{V_{ij}}\biggr) - U_{ij} + V_{ij}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Entropic Regularization</h1>
+
+                    \[
+                    \begin{align}
+                        KL(\gamma|K) &= \sum_{i}\sum_{j}\gamma_{ij}\log\biggr(\dfrac{\gamma_{ij}}{K_{ij}}\biggr) - \gamma_{ij} + K_{ij},\\
+                                     &= \sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - \log(K_{ij})) - \gamma_{ij} + \underset{\text{independent of }\gamma}{\sum_{i}\sum_{j}K_{ij}},\\
+                                     &= \sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - 1) - \sum_{i}\sum_{j}\gamma_{ij}\log(K_{ij}),\\
+                                     &=\sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - 1) - \sum_{i}\sum_{j}\gamma_{ij}\dfrac{-C_{ij}}{\lambda},\\
+                                     &= \sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - 1) + \dfrac{1}{\lambda}\sum_{i}\sum_{j}\gamma_{ij}C_{ij}
+                    \end{align}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Sinkhorn Algorithm</h1>
+
+                    <p>The entrpic regularization allows us to find an approximate solution to the OT problem by using
+                    a much simpler algorithm: the Sinkhorn Algorithm [Cuturi, 2013]. The minimizer \(\gamma^{*}\) of
+                    \(KL(\gamma|K)\) is,</p>
+
+                    \[
+                        \gamma^{*} = diag(u)K diag(v)
+                    \]
+
+                    <p>for vectors \(u, v\) and \(K = e^{-C_{ij}/\lambda}\). But <b>who are</b> \(u\) <b>and</b> \(v\)?</p>
+                </section>
+
+                <section>
+                    <h1>Sinkhorn Algorithm derivation</h1>
+
+                    <p>Step 1. Write the Lagrangian of the regularized OT problem,</p>
+
+                    \[
+                        \begin{align}
+                        \mathcal{L}(\gamma, \mathbf{f}, \mathbf{g}) = &\sum_{i}\sum_{j}\gamma_{ij}C_{ij} + \lambda\sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - 1) - \\&\sum_{i}f_{i}a_{i} - \sum_{j}g_{j}b_{j}
+                        \end{align}
+                    \]
+
+                    \[
+                        \begin{align}
+                        \mathcal{L}(\gamma, \mathbf{f}, \mathbf{g}) = &\sum_{i}\sum_{j}\gamma_{ij}C_{ij} + \lambda\sum_{i}\sum_{j}\gamma_{ij}(\log(\gamma_{ij}) - 1) - \\&\sum_{i}f_{i}\sum_{k}\gamma_{ik} - \sum_{j}g_{j}\sum_{\ell}\gamma_{\ell j}
+                        \end{align}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Sinkhorn Algorithm derivation</h1>
+
+                    <p>Step 2. Take the derivative with respect to \(\gamma_{ij}\)</p>
+
+                    \[
+                        \dfrac{\partial \mathcal{L}}{\partial \gamma_{ij}} = C_{ij} + \lambda\log(\gamma_{ij}) - f_{i} - g_{j}
+                    \]
+
+                    <p>Optimality implies that</p>
+
+                    \[
+                        \gamma_{ij} = \underset{diag(u)}{e^{f_{i}/\lambda}}\underset{K}{e^{-C_{ij}/\lambda}}\underset{diag(v)}{e^{g_{j}/\lambda}}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Sinkhorn Algorithm</h1>
+
+                    <p>The structure \(\gamma^{*} = diag(u)K diag(v)\) allows us to employ a fast matrix-scaling algorithm [Sinkhorn, 1967]:</p>
+
+                    \[
+                        \begin{align}
+                            u^{\ell+1} &= \dfrac{a}{Kv^{\ell}},\\
+                            v^{\ell+1} &= \dfrac{b}{Ku^{\ell+1}}.
+                        \end{align}
+                    \]
+
+                    <p>This algorithm has time complexity \(O(n^{2}\log(n)\tau^{-3})\), for \(\lambda = 4\log(n)/\tau\). Thus the Sinkhorn
+                    algorithm scales better with respect to \(n\), but one should be careful with the choice of \(\lambda\).</p>
+                </section>
+
+                <section>
+                    <h1>Sinkhorn Algorithm</h1>
+
+                    <p>The impact of \(\lambda\) on \(\gamma\):</p>
+
+                    <img src="./Figures/SinkPlan.png" style='height: 70%; width: auto;'>
+                </section>
+
+                <section>
+                    <h1>Theoretical Insights</h1>
+
+                    <p>Note that using the Kantorovich formulation we may define a distance between probability measures,</p>
+
+                    \[
+                        W_{p}(\mu, \nu)^{p} = \underset{\gamma \in \Pi(\mu, \nu)}{\text{minimize}}\text{ }\sum_{i=1}^{n}\sum_{j=1}^{m}||x_{i}-y_{j}||_{p}\gamma_{ij}
+                    \]
+
+                    <p>Various results [Villani, 2008], [Peyre, 2019] show that this is a distance over the space of probability distributions.</p>
+                    <p><b>Intuition:</b> since an empirical measure \(\mu\) is uniquely defined in terms of its weights \(\{a_{i}\}_{i=1}^{n}\), and its support \(\{x_{i}\}_{i=1}^{n}\), one may understand \(W_{p}(\mu, \nu)\) in terms of the measures support and weights.</p>
+                </section>
+
+                <section style="height: 0%;">
+                    <h1>Application: Unsupervised Learning</h1>
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+
+                    <p>For this application we will compare the barycenter of 30 handwritten digits under different types of metrics.</p>
+
+                    <img src="./Figures/Digits.svg" style="height: 60%; width: auto;">
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+
+                    <p>We recall that the barycenter \(x^{*}\) of a set \(\{x_{i}\}_{i=1}^{N}\) of points in \(\mathbb{R}^{n}\) is defined as follows,</p>
+
+                    \[
+                        x^{*} = \underset{x\in\mathbb{R}^{n}}{minimize}\dfrac{1}{N}\sum_{i=1}^{N}d(x, x_{i})
+                    \]
+
+                    <p>Metrics tried: 1. Euclidean Distance, 2. Wasserstein Distance</p>
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+
+                    <p>For the Euclidean distance, one has \(d(x, y) = ||x - y||^{2}\). The formula for the barycenter is derived as follows,</p>
+
+                    \[
+                        \begin{align}
+                            \dfrac{\partial J}{\partial x} &= \dfrac{\partial}{\partial x}\biggr(\dfrac{1}{N}\sum_{i=1}^{N}(x-x_{i})^{T}(x-x_{i})\biggr),\\
+                                                           &= \dfrac{1}{N}\sum_{i=1}^{N}\dfrac{\partial}{\partial x} (x^{T}x - 2x^{T}x_{i}+x_{i}^{T}x_{i}),\\
+                                                           &= \dfrac{2}{N}\sum_{i=1}^{N}(x-x_{i}) \rightarrow x = \dfrac{1}{N}\sum_{i=1}^{N}x_{i}
+                        \end{align}
+                    \]
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+                    <p>For the Wasserstein distance, one has various probability measures \(\{\mu_{i}\}_{i=1}^{N}\)</p>
+
+                    \[
+                        \mu^{*} = \underset{\mu}{\text{minimize}}\dfrac{1}{N}\sum_{i=1}^{N}W_{p}(\mu, \mu_{i})
+                    \]
+
+                    <p><b>Notice:</b> the Wasserstein Barycenter is a probability measure, rather than a point \(x^{*}\)</p>
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+                    <p>
+                        <b>Conceptual shift:</b> Previously we have modeled the barycenter of poitns \(\{x_{i}\}_{i=1}^{N}\). Since
+                    the measures are empirical, one has \(\mu_{i} = \sum_{j=1}^{n_{i}}\delta(x - x_{ij})\). The points \(\{x_{ij}\}_{j=1}^{n_{i}}\) are
+                    called <b>the support</b> of \(\mu_{i}\).
+                    </p>
+
+                    <p>Nevertheless we want a vector \(x^{*} \in \mathbb{R}^{784}\). <b>
+                        How to bridge the gap between measures and
+                       the support?
+                    </b></p>
+                </section>
+
+                <section>
+                    <h1>Application: Unsupervised Learning</h1>
+                    <p>
+                        <b>Note:</b> by changing the support, one changes the probability measure. Thus the Wasserstein barycenter
+                        can be optimized in terms of the points \(x_{ij}\). This is called <b>Free Support Barycenter</b> [Cuturi, 2014]
+                    </p>
+
+                    <img src="./Figures/ComparisonBarycenters.svg">
+                </section>
+
+                <section style="height: 0%;">
+                    <h1>Applications: Domain Adaptation</h1>
+                </section>
+
+                <section>
+                    <h1>Domain Adaptation</h1>
+
+                    <p>When building a classification system, one supposes that training and test data come from the same
+                        <b>probability distribution</b>, this assumption, however, <b>is not verified in practice</b></p>
+
+                    <div style="height: 100%; width: 50%; position: fixed; left: 0;">
+                        <img src="./Figures/TrainxTest.svg" style="float: left; height: 50%; width: auto;">
+                    </div>
+
+                    <div style="height: 100%; width: 50%; position: fixed; right: 0;">
+                        <img src="./Figures/Prob.svg" style="float: right; height: 50%; width: auto;" />
+                    </div>
+                </section>
+
+                <section>
+                    <h1>Domain Adaptation</h1>
+
+                    <p>Domain adaptation (DA) is a sub-set of <b>transfer learning</b>. Its goal is to help learning a
+                        classifier on a <b>target domain</b> (e.g. house street numbers) from a <b>source domain</b>
+                        (e.g. handwritten digits).</p>
+
+                    <p><b>Assumptions:</b></p>
+                    <p>1. Target domain samples, \(\{x_{t}^{j}\}_{j=1}^{n_{t}}\) are not labeled (unsupervised DA)</p>
+                    <p>2. <b>Covariate shift hypothesis:</b> In general, one assumes that \(P_{s}(X) \neq P_{t}(X)\)
+                    but \(P_{s}(Y|X) = P_{t}(Y|X)\).</p>
+                </section>
+
+                <section>
+                    <h1>Domain Adaptation</h1>
+
+                    <p>[Courty, 2016] proposed to use Optimal Transport to match source and target probability distributions</p>
+
+                    <img src="./Figures/CourtyEtAl_OTDA.png" style="height: 30%; width: auto;">
+                    <br>
+                    Figure taken from [Courty, 2016].
+
+                    <p>The proposed framework is known as <b>Optimal Transport for Domain Adaptation</b> (OTDA)</p>
+                </section>
+
+                <!--
+                <section>
+                    <h1>Case Study: Music-Genre Classification</h1>
+
+                    <p>Example of samples for classification:</p>
+                    
+                    <p>Blues</p>
+
+                    <audio controls="controls">
+                       <source src="./data/blues.00000.wav" type="audio/mpeg">
+                    </audio>
+
+                    <p>Rock</p>
+
+                    <audio controls="controls">
+                       <source src="./data/rock.00000.wav" type="audio/mpeg">
+                    </audio>
+
+                    <p>The idea is to classify songs into 10 different genres. The songs are corrupted with different
+                    types of background noises.</p>
+                </section>
+                -->
+
+                <section>
+                    <h1>Study Case: digit classification</h1>  
+
+                    <p>To illustrate the OTDA framework, let us consider two sets of handwritten digits of shape \(16 \times 16\),</p>
+
+                    <img src="./Figures/OTDA_Digits.svg">
+
+                    <p>Baseline Accuracy using a linear SVM: 36.34%</p>
+                </section>
+
+                <section>
+                    <h1>Study Case: digit classifiaction</h1>
+                    <p><b>OTDA Methodology:</b></p>
+                    <p>1. From data poitns \(X_{s} = \{x_{s}^{i}\}_{i=1}^{n_{s}}\) and \(X_{t} = \{x_{t}^{j}\}_{j=1}^{n_{t}}\)
+                       let \(\mu_{s} = \sum_{i=1}^{n_{s}}\delta(x - x_{s}^{i})\) and \(\mu_{t} = \sum_{j=1}^{n_{t}}\delta(x - x_{t}^{j})\)</p>
+                    <p>2. Estimate \(\gamma\) either through LP, or through Sinkhorn's Algorithm</p>
+                    <p>3. Calculate the Barycenter Mapping [Courty, 2016]:</p>
+                    \[
+                        \hat{X}_{s} = n_{t}\gamma X_{t}
+                    \]
+                    <p>4. Fit data on \((\hat{X}_{s}, y_{s})\). Evaluate on \((X_{t}, y_{t})\).</p>
+                </section>
+
+                <section>
+                    <h1>Study Case: digit classification</h1>
+
+                    <p>Applying the aforementioned methodology, one gets,</p>
+
+                    <img src="./Figures/TransportedDigits.svg">
+
+                    <p>After transporting the source samples, the accuracy improves to 45.68%.</p>
+                </section>
+
+
+                <section style="height: 0%;">
+                    <h1>Conclusion</h1>
+                </section>
+
+                <section>
+                    <h1>Conclusion</h1>
+
+                    <p>In this lecture we have explified many problems in Machine Learning that can profit from
+                    the theory of Optimal Transport</p>
+                    <p>These involve (but are by no means limited to):</p>
+                    <p>1. Unsupervised Learning, with barycenter calculation</p>
+                    <p>2. Supervised Learning, especially transfer learning</p>
+
+                    <p>Due the introductory approach of this lecture, many algorithms were left out.</p>
+                </section>
+
+                <section>
+                    <h1>Conclusion</h1>
+
+                    <p>Other topics may me interesting:</p>
+
+                    <p>1. Generative Modeling through the Wasserstein Distance</p>
+                    <p style="padding-left: 100px"> <a href="https://www.youtube.com/watch?v=6iR1E6t1MMQ">This lecture by Marco Cuturi</a> </p>
+                    <p style="padding-left: 100px"> Generative Adversarial Networks (GANs) [Goodfellow, 2014], especially Wasserstein GANs (WGANs) [Arjovsky, 2017] </p>
+                    <p style="padding-left: 100px"> Deep Wasserstein Embeddings (DWEs) [Courty, 2017]</p>
+
+                    <p>2. OT on structured data [Flamary, 2019]</p>
+                    <p style="padding-left: 100px">OT on graphs [Vayer, 2018]</p>
+                </section>
+
+                <section>
+                    <h1>Resources</h1>
+
+                    <p>A good place for start learning about OT is the book by [Peyré, 2019].</p>
+                    <p style="padding-left: 100px">The book takes a computational approach to OT, which is similar to this presentation (the reasoning presented here
+                    was inpired on this book).</p>
+                    <p>Since OT is per se a mathematical field, far more advanced (with respect to mathematical formality)
+                    books are available. The standard book for a mathematical approach to OT is [Villani, 2008]</p>
+
+                    <p>Both books are freely available on the web.</p>
+                </section>
+
+                <section>
+                    <h1>References</h1>
+
+                    <p>[Dantzig, 1990] Dantzig, George B. "Origins of the simplex method." A history of scientific computing. 1990. 141-151.</p>
+                    <p>[Karmakar, 1984] Karmarkar, Narendra. "A new polynomial-time algorithm for linear programming." Proceedings of the sixteenth annual ACM symposium on Theory of computing. 1984.</p>
+                    <p>[Cuturi, 2013] Cuturi, Marco. "Sinkhorn distances: lightspeed computation of optimal transport." NIPS. Vol. 2. No. 3. 2013.</p>
+                    <p>[Sinkhorn, 1967] Sinkhorn, Richard, and Paul Knopp. "Concerning nonnegative matrices and doubly stochastic matrices." Pacific Journal of Mathematics 21.2 (1967): 343-348.</p>
+                    <p>[Cuturi, 2014] Cuturi, Marco, and Arnaud Doucet. "Fast computation of Wasserstein barycenters." International conference on machine learning. PMLR, 2014.</p>
+                </section>
+
+                <section>
+                    <h1>References</h1>
+
+                    <p>[Villani, 2008] Villani, Cédric. Optimal transport: old and new. Vol. 338. Springer Science & Business Media, 2008.</p>
+                    <p>[Peyré, 2019] Peyré, Gabriel, and Marco Cuturi. "Computational optimal transport: With applications to data science." Foundations and Trends® in Machine Learning 11.5-6 (2019): 355-607.</p>
+                    <p>[Courty, 2016] Courty, Nicolas, et al. "Optimal transport for domain adaptation." IEEE transactions on pattern analysis and machine intelligence 39.9 (2016): 1853-1865.</p>
+                    <p>[Goodfellow, 2014] Goodfellow, Ian J., et al. "Generative adversarial networks." arXiv preprint arXiv:1406.2661 (2014).</p>
+                    <p>[Arjovsky, 2017] Arjovsky, Martin, Soumith Chintala, and Léon Bottou. "Wasserstein generative adversarial networks." International conference on machine learning. PMLR, 2017.</p>
+                </section>
+
+                <section>
+                    <h1>References</h1>
+
+                    <p>[Courty, 2017] Courty, Nicolas, Rémi Flamary, and Mélanie Ducoffe. "Learning wasserstein embeddings." arXiv preprint arXiv:1710.07457 (2017).</p>
+                    <p>[Flamary, 2019] FLAMARY, Rémi. Transport optimal pour l’apprentissage statistique. Diss. Télécom Paristech, 2019.</p>
+                    <p>[Vayer, 2018] Vayer, Titouan, et al. "Optimal Transport for structured data with application on graphs." arXiv preprint arXiv:1805.09114 (2018).</p>
+                </section>
+			</div>
+		</div>
+
+		<script src="reveal/dist/reveal.js"></script>
+		<script src="reveal/plugin/notes/notes.js"></script>
+		<script src="reveal/plugin/markdown/markdown.js"></script>
+		<script src="reveal/plugin/highlight/highlight.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+			});
+		</script>
+        <script src="reveal/plugin/math/math.js"></script>
+        <script>
+          Reveal.initialize({
+            math: {
+              mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+              config: 'TeX-AMS_HTML-full',
+              // pass other options into `MathJax.Hub.Config()`
+              TeX: { Macros: { RR: "{\\bf R}" } }
+            },
+            plugins: [ RevealMath ]
+          });
+        </script>
+        <!--<script src="https://d3js.org/d3.v4.js"></script>-->
+	</body>
+</html>
