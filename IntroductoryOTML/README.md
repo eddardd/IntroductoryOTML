@@ -1,6 +1,6 @@
 # IntroductoryOTML
 
-This repository contains the code and presentation for the lecture "Introduction of Optimal Transport for Machine Learning", for third year undergraduate students @ Universidade Federal do Ceará (UFC).
+This repository contains the code and presentation for the lecture "Introduction of Optimal Transport for Machine Learning", for third year undergraduate students @ Universidade Federal do Ceará (UFC). You may find the presentation on the following link: [[Presentation]](https://eddardd.github.io/TalksAndPresentations/IntroductoryOTML/)
 
 For executing the code here presented, you will need the following packages,
 
